@@ -10,8 +10,8 @@ class AudioUI extends Component{
         this.state={
 
         };
-        this.handleLoop=this.handleLoop.bind(this);
-        this.handleVoiceShow = this.handleVoiceShow.bind(this);
+     
+        
        }
 	render(){
 		return(
@@ -27,7 +27,7 @@ class AudioUI extends Component{
                             
                             </div>
                              <div className="iconfont icon-bofangqi_suijibofang_"></div>  
-                            <div className="iconfont icon-xunhuanbofang" onClick={this.handleLoop}></div>  
+                            <div className="iconfont icon-xunhuanbofang" onClick={()=>{this.handleLoop(this.props.loopShow)}}></div>  
                             <div className="iconfont icon-bofangqi-yinliang"onClick={()=>{this.handleVoiceShow(this.props.voiceShow)}}></div> 
                             <div className="iconfont icon-bofangqi-suoping_"></div> 
                             <div className="ballBar" ref="ballBar">
@@ -48,6 +48,7 @@ class AudioUI extends Component{
 			this.handlePlaying();
             this.handleMoveBar();
             this.handleVoice();
+           
 
 		}else{
 			this.handlePause();
@@ -65,25 +66,30 @@ class AudioUI extends Component{
     	this.timer=setInterval(()=>{this.playingStatus()},200);
         
     }
-    handleVoiceShow(){
+    handleVoiceShow(isVoiceShow){
         console.log(this.props.voiceShow)
         if(this.props.voiceShow){
-           this.refs.ballBar.style.display="block"; 
-       }else{
-        this.refs.ballBar.style.display="none"
-       }
-       
-      
-    }
-    handleLoop(){
         
-        var audio1 = document.getElementsByTagName('audio');
-      
-       
-
-      
-        console.log(audio1.volume)
+        this.refs.ballBar.style.display = "none";
+         
+        }else{
+            this.refs.ballBar.style.display= "";
+           
+        }
+        this.props.changeVoiceShow(isVoiceShow);
+        
     }
+   
+    handleLoop(isLoop){
+        if(this.props.loopShow){
+            this.refs.audio1.loop="loop"
+        }else{
+            this.refs.audio1.loop=""
+        }
+        this.props.changeLoop(isLoop)      
+        
+      window.event.stopPropagation();
+     }
 
     playingStatus(){
     	var audioProgress1 = this.refs.audioProgress1;
@@ -100,11 +106,9 @@ class AudioUI extends Component{
         var ballBar = this.refs.ballBar ;
         var voiceBall = this.refs.ball ;
         var disY = 0 ;
-          voiceBall.addEventListener('touchstart',(ev)=>{
-            console.log(111)
-          var touch = ev.changedTouches[0];
-          disY = touch.pageY-voiceBall.offsetTop;
-          document.addEventListener('touchmove',(ev)=>{
+    
+        function moveFn(ev){
+           
             var touch = ev.changedTouches[0];
             var H = touch.pageY-disY ;
             if(H<0){
@@ -116,28 +120,33 @@ class AudioUI extends Component{
             var scale = H/ballBar.offsetHeight ;
             console.log((scale).toFixed(1))
               audio1.volume=1-parseFloat(scale).toFixed(1) ;
-          });
-          document.ontouchend=function(){
-            document.addEventListener=null ;
           }
-          return false ;
+
+             function endFn(){
+                    document.removeEventListener('touchmove',moveFn);
+                    document.removeEventListener('touchend',endFn);
+               }
+          voiceBall.addEventListener('touchstart',(ev)=>{
+            // console.log(111)
+          var touch = ev.changedTouches[0];
+          disY = touch.pageY-voiceBall.offsetTop;
+          document.addEventListener('touchmove',moveFn);
+             document.addEventListener('touchend',endFn);  
+      
           })
+          window.event.stopPropagation();
     }
     handleMoveBar(){
     	var audioProgress1 = this.refs.audioProgress1;
     	var audioBar1 = this.refs.audioBar1;
     	var audioNow1 = this.refs.audioNow1;
     	var audio1 = this.refs.audio1 ;
-    	var disX=0 ;
-        audioBar1.addEventListener('touchstart',(ev)=>{
-            
-                var touch = ev.changedTouches[0];
-         disX = touch.pageX-audioBar1.offsetLeft;
-         // console.log(disX)
-         document.addEventListener('touchmove',(ev)=>{
-            
-            var touch = ev.changedTouches[0];
-             var L = touch.pageX-disX;
+    	var disX1=0 ;
+
+        function moveFn(ev){
+           
+            var touch1 = ev.changedTouches[0];
+             var L = touch1.pageX-disX1;
              if(L<-7){
                  L=-7
                   }else if(L>audioProgress1.offsetWidth-7){
@@ -148,17 +157,29 @@ class AudioUI extends Component{
               var scale=L/(audioProgress1.offsetWidth-7) ;
                 audio1.currentTime=audio1.duration * scale ;
                 audioNow1.style.width=scale*100+'%';
-               });
+               }
+               function endFn(){
+                   
+                    document.removeEventListener('touchmove',moveFn);
+                    document.removeEventListener('touchend',endFn);
+               }
+
+        audioBar1.addEventListener('touchstart',(ev)=>{
+            
+                var touch1 = ev.changedTouches[0];
+         disX1 = touch1.pageX-audioBar1.offsetLeft;
+         // console.log(disX)
+            document.addEventListener('touchmove',moveFn);
           //      document.addEventListener('touchend',(ev)=>{
           //     document.ontouchmove=document.ontouchend=null;
           // });
-                document.ontouchend=function(){
-                    document.addEventListener=null ;
-                }
-               return false ;
+            document.addEventListener('touchend',endFn);  
+                
+               // window.event.stopPropagation()
         })
 
        }
+
     }
 
 
@@ -166,7 +187,8 @@ class AudioUI extends Component{
 function mapStateToProps(state){
 	return {
 		isPlay:state.isPlay,
-        voiceShow:state.voiceShow
+        voiceShow:state.voiceShow,
+        loopShow:state.loopShow
 	}
 }
 function mapDispatchToProps(dispatch){
@@ -174,8 +196,11 @@ function mapDispatchToProps(dispatch){
 		handleIsPlay(isPlaying){
 			dispatch({type:'CHANGE_MUSIC',payload:!isPlaying})
 		},
-        handleVoiceShow(isVoiceShow){
+        changeVoiceShow(isVoiceShow){
             dispatch({ type:'CHANGE_VOICE',payload:!isVoiceShow})
+        },
+        changeLoop(isLoop){
+            dispatch({type:'CHANGE_LOOP',payload:isLoop})
         }
 	}
 }
