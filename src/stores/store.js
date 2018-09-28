@@ -21,17 +21,17 @@ function playingReducer(state=false,action){
 	if(action.type==='CHANGE_MUSIC'){
 		return action.payload
 	}else{
-		return false ;
+		return state ;//此处不可以用false或true代替；会出错
 	}
 }
-function voiceShowReducer(state=false,action){
+function voiceShowReducer(state,action){
 	if(action.type==="CHANGE_VOICE"){
 		return action.payload ;
 	}else{
-		return state ;
+		return false ;
 	}
 }
-function loopShowReducer(state="",action){
+function loopShowReducer(state=false,action){
 	if(action.type==="CHANGE_LOOP"){
 		return action.payload
 	}else{

@@ -9,5 +9,5 @@
 #musicAudio .icon-xunhuanbofang{font-size: 20px;color:white;position: absolute;right:60px;top:6px;opacity: .7;}
 #musicAudio .icon-bofangqi-yinliang{font-size: 20px;color:white;position: absolute;right:90px;top:6px;opacity: .7;}
 #musicAudio .icon-bofangqi-suoping_{font-size: 20px;color:white;position: absolute;right:120px;top:6px;opacity: .7;}
-#musicAudio .ballBar{width:2px;height:100px;position: absolute;background: red;bottom: 0;right:95px;opacity:.5;display:-none;}
-#musicAudio .ball{width:10px;height:10px;opacity:.7; background: white;border-radius: 50%;position: absolute;right:-4px;bottom:0;}
+#musicAudio .ballBar{width:2px;height:100px;position: absolute;background: red;bottom: 0;right:95px;opacity:.5;display:none;}
+#musicAudio .ball{width:10px;height:10px;opacity:.7; background: white;border-radius: 50%;position: absolute;right:-4px;bottom:40px;}

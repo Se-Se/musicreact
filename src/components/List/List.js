@@ -24,7 +24,7 @@ class ListUI extends Component{
 					{
 						this.state.musicList.map((item,index)=>{
                            return(
-                                <li key={item.id} onTouchMove={this.handleMove} onTouchEnd={()=>{this.handleEnd(item.id,item.title,item.pic)}}>
+                                <li key={index} onTouchMove={this.handleMove} onTouchEnd={()=>{this.handleEnd(item.id,item.title,item.pic)}}>
 									<div className="listOrder">{index+1}</div>
 									<div className="listName">
 									<h3>{item.title}</h3>

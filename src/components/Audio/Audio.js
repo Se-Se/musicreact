@@ -8,7 +8,7 @@ class AudioUI extends Component{
        constructor(){
         super();
         this.state={
-
+         voiceShow:false
         };
      
         
@@ -27,7 +27,7 @@ class AudioUI extends Component{
                             
                             </div>
                              <div className="iconfont icon-bofangqi_suijibofang_"></div>  
-                            <div className="iconfont icon-xunhuanbofang" onClick={()=>{this.handleLoop(this.props.loopShow)}}></div>  
+                            <div id="loop" className="iconfont icon-xunhuanbofang" onClick={()=>{this.handleLoop(this.props.loopShow)}}></div>  
                             <div className="iconfont icon-bofangqi-yinliang"onClick={()=>{this.handleVoiceShow(this.props.voiceShow)}}></div> 
                             <div className="iconfont icon-bofangqi-suoping_"></div> 
                             <div className="ballBar" ref="ballBar">
@@ -51,45 +51,62 @@ class AudioUI extends Component{
            
 
 		}else{
+      
+      console.log(this.props.isPlay+'播放');
 			this.handlePause();
 		}
 	}
+
+//播放暂停
+
 	 handlePause(){
 	this.refs.audio1.pause();
 	this.refs.audioPlay.style.backgroundImage = 'url(/images/list_audioPlay.png)';
 	clearInterval(this.timer)
 }
-    handlePlaying(){
+
+//开始播放
+   handlePlaying(){
     	this.refs.audio1.play();
     	this.refs.audioPlay.style.backgroundImage = 'url(/images/list_audioPause.png)';
     	this.playingStatus();
     	this.timer=setInterval(()=>{this.playingStatus()},200);
-        
-    }
+     }
+
+//音量控件显示/隐藏
+
     handleVoiceShow(isVoiceShow){
-        console.log(this.props.voiceShow)
+        // console.log(this.props.voiceShow+'音量')
         if(this.props.voiceShow){
         
         this.refs.ballBar.style.display = "none";
          
         }else{
-            this.refs.ballBar.style.display= "";
+            this.refs.ballBar.style.display= "block";
            
         }
         this.props.changeVoiceShow(isVoiceShow);
         
     }
    
+//循环控件
+
     handleLoop(isLoop){
+
         if(this.props.loopShow){
-            this.refs.audio1.loop="loop"
+            this.refs.audio1.loop="loop";
+            document.getElementById('loop').style.color="green"
+            // console.log( this.refs.audio1.loop+'loop')
         }else{
-            this.refs.audio1.loop=""
+            this.refs.audio1.loop="";
+            document.getElementById('loop').style.color="white"
         }
         this.props.changeLoop(isLoop)      
         
-      window.event.stopPropagation();
+      
      }
+
+//播放状态
 
     playingStatus(){
     	var audioProgress1 = this.refs.audioProgress1;
@@ -101,11 +118,14 @@ class AudioUI extends Component{
          audioBar1.style.left=scale*audioProgress1.offsetWidth - 12+ 'px';
          audioNow1.style.width = scale*100+'%';
     }
+
+//音量控件
+
     handleVoice(){
         var audio1 = this.refs.audio1;
         var ballBar = this.refs.ballBar ;
         var voiceBall = this.refs.ball ;
-        var disY = 0 ;
+        var disY = 0;
     
         function moveFn(ev){
            
@@ -118,7 +138,7 @@ class AudioUI extends Component{
             }
             voiceBall.style.top = H + 'px';
             var scale = H/ballBar.offsetHeight ;
-            console.log((scale).toFixed(1))
+            // console.log((scale).toFixed(1))
               audio1.volume=1-parseFloat(scale).toFixed(1) ;
           }
 
@@ -133,9 +153,12 @@ class AudioUI extends Component{
           document.addEventListener('touchmove',moveFn);
              document.addEventListener('touchend',endFn);  
       
-          })
+          },false)
           window.event.stopPropagation();
     }
+
+//播放进度条
+
     handleMoveBar(){
     	var audioProgress1 = this.refs.audioProgress1;
     	var audioBar1 = this.refs.audioBar1;
@@ -159,9 +182,9 @@ class AudioUI extends Component{
                 audioNow1.style.width=scale*100+'%';
                }
                function endFn(){
-                   
-                    document.removeEventListener('touchmove',moveFn);
-                    document.removeEventListener('touchend',endFn);
+
+                    document.removeEventListener('touchmove',moveFn,false);
+                    document.removeEventListener('touchend',endFn,false);
                }
 
         audioBar1.addEventListener('touchstart',(ev)=>{
@@ -176,7 +199,8 @@ class AudioUI extends Component{
             document.addEventListener('touchend',endFn);  
                 
                // window.event.stopPropagation()
-        })
+        },false)
+
 
        }
 
@@ -200,7 +224,7 @@ function mapDispatchToProps(dispatch){
             dispatch({ type:'CHANGE_VOICE',payload:!isVoiceShow})
         },
         changeLoop(isLoop){
-            dispatch({type:'CHANGE_LOOP',payload:isLoop})
+            dispatch({type:'CHANGE_LOOP',payload:!isLoop})
         }
 	}
 }
